@@ -1,0 +1,194 @@
+﻿<Page x:Class="ElectroShop.Pages.ProductDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="ProductDetailsPage"
+      Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верх -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="140"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Карточка товара"
+                       Style="{StaticResource PageTitleStyle}"
+                       VerticalAlignment="Center"/>
+
+            <Button Grid.Column="1"
+                    Content="Назад"
+                    Width="100"
+                    Style="{StaticResource GhostButtonStyle}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Click="btnBack_Click"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="390"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Изображения -->
+            <Border Grid.Column="0"
+                    Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <Border Background="{StaticResource SurfaceBrush2}"
+                            BorderBrush="{StaticResource BorderBrushSoft}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="12"
+                            Margin="0,0,0,16">
+                        <Image x:Name="imgMain"
+                               Width="320"
+                               Height="320"
+                               Stretch="Uniform"/>
+                    </Border>
+
+                    <TextBlock Text="Галерея"
+                               Foreground="{StaticResource TextMainBrush}"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,0,10"/>
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  Height="110">
+                        <ItemsControl x:Name="icImages">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Tag="{Binding}"
+                                            Click="btnThumbnail_Click"
+                                            Width="90"
+                                            Height="90"
+                                            Margin="4"
+                                            Style="{StaticResource GhostButtonStyle}">
+                                        <Image Source="{Binding}"
+                                               Width="70"
+                                               Height="70"
+                                               Stretch="Uniform"/>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- Характеристики -->
+            <Border Grid.Column="1"
+                    Style="{StaticResource CardBorderStyle}"
+                    Margin="14,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="tbName"
+                                   Foreground="{StaticResource TextMainBrush}"
+                                   FontSize="30"
+                                   FontWeight="Bold"
+                                   TextWrapping="Wrap"/>
+
+                        <TextBlock x:Name="tbModel"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   FontSize="18"
+                                   Margin="0,10,0,0"/>
+
+                        <TextBlock x:Name="tbPrice"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontSize="26"
+                                   FontWeight="Bold"
+                                   Margin="0,18,0,0"/>
+
+                        <WrapPanel Margin="0,18,0,0">
+                            <Border Background="{StaticResource SurfaceBrush2}"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="12,6"
+                                    Margin="0,0,10,10">
+                                <TextBlock x:Name="tbCategory"
+                                           Foreground="{StaticResource TextMainBrush}"/>
+                            </Border>
+
+                            <Border Background="{StaticResource SurfaceBrush2}"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="12,6"
+                                    Margin="0,0,10,10">
+                                <TextBlock x:Name="tbBrand"
+                                           Foreground="{StaticResource TextMainBrush}"/>
+                            </Border>
+
+                            <Border Background="{StaticResource SurfaceBrush2}"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="12,6"
+                                    Margin="0,0,10,10">
+                                <TextBlock x:Name="tbStatus"
+                                           Foreground="{StaticResource TextMainBrush}"/>
+                            </Border>
+                        </WrapPanel>
+
+                        <TextBlock x:Name="tbQuantity"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,10,0,0"/>
+
+                        <TextBlock x:Name="tbWarranty"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,8,0,0"/>
+
+                        <TextBlock x:Name="tbPortable"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Margin="0,8,0,0"/>
+
+                        <TextBlock Text="Описание"
+                                   Foreground="{StaticResource TextMainBrush}"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,24,0,8"/>
+
+                        <TextBlock x:Name="tbDescription"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   TextWrapping="Wrap"/>
+
+                        <TextBlock Text="Характеристики"
+                                   Foreground="{StaticResource TextMainBrush}"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Margin="0,24,0,8"/>
+
+                        <Border Background="{StaticResource SurfaceBrush2}"
+                                BorderBrush="{StaticResource BorderBrushSoft}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="12">
+                            <TextBlock x:Name="tbSpecifications"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       TextWrapping="Wrap"/>
+                        </Border>
+
+                        <Button x:Name="btnAddToCart"
+                                Content="Добавить в корзину"
+                                Width="190"
+                                Margin="0,24,0,0"
+                                Style="{StaticResource MainButtonStyle}"
+                                Click="btnAddToCart_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
