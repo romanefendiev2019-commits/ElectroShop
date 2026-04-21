@@ -1,0 +1,417 @@
+USE master;
+GO
+
+IF DB_ID('ElectroShopDB') IS NOT NULL
+BEGIN
+    ALTER DATABASE ElectroShopDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ElectroShopDB;
+END
+GO
+
+CREATE DATABASE ElectroShopDB;
+GO
+
+USE ElectroShopDB;
+GO
+
+/* =========================
+   1. Справочники
+   ========================= */
+
+CREATE TABLE Roles
+(
+    RoleID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleName NVARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Categories
+(
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryName NVARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE Brands
+(
+    BrandID INT IDENTITY(1,1) PRIMARY KEY,
+    BrandName NVARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE ProductStatuses
+(
+    StatusID INT IDENTITY(1,1) PRIMARY KEY,
+    StatusName NVARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE OrderStatuses
+(
+    OrderStatusID INT IDENTITY(1,1) PRIMARY KEY,
+    StatusName NVARCHAR(50) NOT NULL UNIQUE
+);
+
+/* =========================
+   2. Пользователи
+   ========================= */
+
+CREATE TABLE Users
+(
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(100) NOT NULL,
+    Login NVARCHAR(50) NOT NULL UNIQUE,
+    [Password] NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NULL,
+    Phone NVARCHAR(20) NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT(GETDATE()),
+    IsBlocked BIT NOT NULL DEFAULT(0),
+    RoleID INT NOT NULL,
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
+);
+
+/* =========================
+   3. Корзины
+   ========================= */
+
+CREATE TABLE Carts
+(
+    CartID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL UNIQUE,
+    CreatedAt DATETIME NOT NULL DEFAULT(GETDATE()),
+    CONSTRAINT FK_Carts_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+/* =========================
+   4. Товары
+   ========================= */
+
+CREATE TABLE Products
+(
+    ProductID INT IDENTITY(1,1) PRIMARY KEY,
+    ProductName NVARCHAR(150) NOT NULL,
+    Model NVARCHAR(100) NULL,
+    Description NVARCHAR(1000) NULL,
+    Specifications NVARCHAR(1000) NULL,
+    Price DECIMAL(10,2) NOT NULL CHECK (Price > 0),
+    QuantityInStock INT NOT NULL CHECK (QuantityInStock >= 0),
+    WarrantyMonths INT NULL CHECK (WarrantyMonths >= 0),
+    IsPortable BIT NULL DEFAULT(0),
+    MainImage NVARCHAR(255) NOT NULL,
+    CategoryID INT NOT NULL,
+    BrandID INT NOT NULL,
+    StatusID INT NOT NULL,
+    CONSTRAINT FK_Products_Categories FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
+    CONSTRAINT FK_Products_Brands FOREIGN KEY (BrandID) REFERENCES Brands(BrandID),
+    CONSTRAINT FK_Products_ProductStatuses FOREIGN KEY (StatusID) REFERENCES ProductStatuses(StatusID)
+);
+
+CREATE TABLE ProductImages
+(
+    ImageID INT IDENTITY(1,1) PRIMARY KEY,
+    ProductID INT NOT NULL,
+    ImagePath NVARCHAR(255) NOT NULL,
+    CONSTRAINT FK_ProductImages_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
+
+/* =========================
+   5. Корзина: позиции
+   ========================= */
+
+CREATE TABLE CartItems
+(
+    CartItemID INT IDENTITY(1,1) PRIMARY KEY,
+    CartID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PriceAtMoment DECIMAL(10,2) NOT NULL CHECK (PriceAtMoment > 0),
+    CONSTRAINT FK_CartItems_Carts FOREIGN KEY (CartID) REFERENCES Carts(CartID) ON DELETE CASCADE,
+    CONSTRAINT FK_CartItems_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
+    CONSTRAINT UQ_Cart_Product UNIQUE (CartID, ProductID)
+);
+
+/* =========================
+   6. Заказы
+   ========================= */
+
+CREATE TABLE Orders
+(
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    OrderDate DATETIME NOT NULL DEFAULT(GETDATE()),
+    TotalAmount DECIMAL(10,2) NOT NULL CHECK (TotalAmount >= 0),
+    OrderStatusID INT NOT NULL,
+    CONSTRAINT FK_Orders_Users FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    CONSTRAINT FK_Orders_OrderStatuses FOREIGN KEY (OrderStatusID) REFERENCES OrderStatuses(OrderStatusID)
+);
+
+CREATE TABLE OrderItems
+(
+    OrderItemID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PriceAtMoment DECIMAL(10,2) NOT NULL CHECK (PriceAtMoment > 0),
+    CONSTRAINT FK_OrderItems_Orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    CONSTRAINT FK_OrderItems_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+CREATE TABLE Receipts
+(
+    ReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL UNIQUE,
+    PdfPath NVARCHAR(255) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT(GETDATE()),
+    CONSTRAINT FK_Receipts_Orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE
+);
+
+/* =========================
+   7. Telegram / QR
+   ========================= */
+
+CREATE TABLE TelegramLinks
+(
+    TelegramLinkID INT IDENTITY(1,1) PRIMARY KEY,
+    Url NVARCHAR(255) NOT NULL,
+    QrImagePath NVARCHAR(255) NULL,
+    IsActive BIT NOT NULL DEFAULT(1)
+);
+
+/* =========================
+   8. Наполнение справочников
+   ========================= */
+
+INSERT INTO Roles (RoleName)
+VALUES
+(N'Администратор'),
+(N'Пользователь');
+
+INSERT INTO Categories (CategoryName)
+VALUES
+(N'Смартфоны'),
+(N'Ноутбуки'),
+(N'Наушники'),
+(N'Мониторы'),
+(N'Видеокарты'),
+(N'Клавиатуры'),
+(N'Мыши'),
+(N'Планшеты'),
+(N'Смарт-часы'),
+(N'Телевизоры');
+
+INSERT INTO Brands (BrandName)
+VALUES
+(N'Apple'),
+(N'Samsung'),
+(N'Xiaomi'),
+(N'ASUS'),
+(N'Lenovo'),
+(N'HP'),
+(N'Acer'),
+(N'Logitech'),
+(N'Sony'),
+(N'MSI'),
+(N'LG'),
+(N'Dell');
+
+INSERT INTO ProductStatuses (StatusName)
+VALUES
+(N'В наличии'),
+(N'Нет в наличии'),
+(N'Под заказ'),
+(N'Акция');
+
+INSERT INTO OrderStatuses (StatusName)
+VALUES
+(N'Создан'),
+(N'Подтвержден'),
+(N'Выдан'),
+(N'Отменен');
+
+/* =========================
+   9. Пользователи
+   ========================= */
+
+INSERT INTO Users (FullName, Login, [Password], Email, Phone, RoleID, IsBlocked)
+VALUES
+(N'Главный администратор', N'admin', N'admin', N'admin@electroshop.ru', N'+79990000001', 1, 0),
+(N'Иван Петров', N'user1', N'1234', N'user1@mail.ru', N'+79990000002', 2, 0),
+(N'Анна Смирнова', N'user2', N'1234', N'user2@mail.ru', N'+79990000003', 2, 0),
+(N'Тест Блокировка', N'blocked', N'1234', N'blocked@mail.ru', N'+79990000004', 2, 1);
+
+/* =========================
+   10. Корзины для пользователей
+   ========================= */
+
+INSERT INTO Carts (UserID)
+SELECT UserID
+FROM Users;
+
+/* =========================
+   11. Товары
+   ========================= */
+
+INSERT INTO Products
+(
+    ProductName, Model, Description, Specifications,
+    Price, QuantityInStock, WarrantyMonths, IsPortable,
+    MainImage, CategoryID, BrandID, StatusID
+)
+VALUES
+(
+    N'Смартфон Apple iPhone',
+    N'iPhone 14 128GB',
+    N'Современный смартфон с качественным экраном и высокой производительностью.',
+    N'Экран 6.1, память 128 ГБ, камера 12 МП, iOS',
+    79990.00, 12, 12, 1,
+    N'iphone14_main.png', 1, 1, 1
+),
+(
+    N'Ноутбук ASUS TUF Gaming',
+    N'FX507',
+    N'Игровой ноутбук для учебы, работы и современных игр.',
+    N'Intel Core i7, 16 ГБ RAM, SSD 512 ГБ, RTX 4060, 15.6',
+    119990.00, 5, 24, 1,
+    N'asus_tuf_main.png', 2, 4, 1
+),
+(
+    N'Беспроводные наушники Sony',
+    N'WH-1000XM5',
+    N'Полноразмерные наушники с активным шумоподавлением.',
+    N'Bluetooth 5.2, ANC, до 30 часов работы',
+    32990.00, 8, 12, 1,
+    N'sony_wh_main.png', 3, 9, 1
+),
+(
+    N'Монитор LG UltraGear',
+    N'27GN800',
+    N'Игровой монитор с высокой частотой обновления.',
+    N'27 дюймов, IPS, 144 Гц, 2560x1440',
+    27990.00, 6, 24, 0,
+    N'lg_monitor_main.png', 4, 11, 1
+),
+(
+    N'Видеокарта MSI GeForce RTX',
+    N'RTX 4070 Ventus 2X',
+    N'Современная видеокарта для игр и графических задач.',
+    N'12 ГБ GDDR6X, HDMI, DisplayPort',
+    69990.00, 3, 36, 0,
+    N'msi_4070_main.png', 5, 10, 1
+),
+(
+    N'Игровая клавиатура Logitech',
+    N'G Pro Keyboard',
+    N'Компактная механическая клавиатура для игр.',
+    N'Механическая, RGB-подсветка, USB',
+    12990.00, 10, 12, 0,
+    N'logitech_keyboard_main.png', 6, 8, 4
+),
+(
+    N'Беспроводная мышь Logitech',
+    N'MX Master 3S',
+    N'Удобная мышь для работы и повседневного использования.',
+    N'Bluetooth, USB Receiver, до 70 дней работы',
+    9990.00, 14, 12, 1,
+    N'logitech_mouse_main.png', 7, 8, 1
+),
+(
+    N'Планшет Samsung Galaxy Tab',
+    N'Tab S9',
+    N'Планшет для работы, учебы и мультимедиа.',
+    N'11 дюймов, 128 ГБ, Android, Wi-Fi',
+    64990.00, 7, 12, 1,
+    N'samsung_tab_main.png', 8, 2, 1
+),
+(
+    N'Смарт-часы Apple Watch',
+    N'Series 9',
+    N'Умные часы для спорта и повседневного использования.',
+    N'GPS, OLED, влагозащита',
+    44990.00, 9, 12, 1,
+    N'apple_watch_main.png', 9, 1, 1
+),
+(
+    N'Телевизор Xiaomi TV',
+    N'Mi TV Q2 55',
+    N'Телевизор с большим экраном и Smart TV.',
+    N'55 дюймов, 4K, QLED, Android TV',
+    54990.00, 4, 24, 0,
+    N'xiaomi_tv_main.png', 10, 3, 3
+);
+
+/* =========================
+   12. Дополнительные изображения
+   ========================= */
+
+INSERT INTO ProductImages (ProductID, ImagePath)
+VALUES
+(1, N'iphone14_side.png'),
+(1, N'iphone14_back.png'),
+(2, N'asus_tuf_open.png'),
+(2, N'asus_tuf_keyboard.png'),
+(3, N'sony_wh_side.png'),
+(4, N'lg_monitor_angle.png'),
+(5, N'msi_4070_box.png'),
+(6, N'logitech_keyboard_rgb.png'),
+(7, N'logitech_mouse_side.png'),
+(8, N'samsung_tab_back.png'),
+(9, N'apple_watch_band.png'),
+(10, N'xiaomi_tv_side.png');
+
+/* =========================
+   13. Тестовые товары в корзине
+   ========================= */
+
+DECLARE @CartUser1 INT = (SELECT CartID FROM Carts WHERE UserID = 2);
+DECLARE @CartUser2 INT = (SELECT CartID FROM Carts WHERE UserID = 3);
+
+INSERT INTO CartItems (CartID, ProductID, Quantity, PriceAtMoment)
+VALUES
+(@CartUser1, 1, 1, 79990.00),
+(@CartUser1, 7, 2, 9990.00),
+(@CartUser2, 3, 1, 32990.00);
+
+/* =========================
+   14. Telegram ссылка
+   ========================= */
+
+INSERT INTO TelegramLinks (Url, QrImagePath, IsActive)
+VALUES
+(N'https://t.me/electroshop_support', NULL, 1);
+
+/* =========================
+   15. Тестовый заказ + чек
+   ========================= */
+
+INSERT INTO Orders (UserID, OrderDate, TotalAmount, OrderStatusID)
+VALUES
+(2, GETDATE(), 89980.00, 2);
+
+DECLARE @OrderID INT = SCOPE_IDENTITY();
+
+INSERT INTO OrderItems (OrderID, ProductID, Quantity, PriceAtMoment)
+VALUES
+(@OrderID, 1, 1, 79990.00),
+(@OrderID, 7, 1, 9990.00);
+
+INSERT INTO Receipts (OrderID, PdfPath, CreatedAt)
+VALUES
+(@OrderID, N'Receipts\receipt_' + CAST(@OrderID AS NVARCHAR(20)) + N'.pdf', GETDATE());
+
+GO
+
+/* =========================
+   16. Проверка
+   ========================= */
+
+SELECT * FROM Roles;
+SELECT * FROM Categories;
+SELECT * FROM Brands;
+SELECT * FROM ProductStatuses;
+SELECT * FROM OrderStatuses;
+SELECT * FROM Users;
+SELECT * FROM Carts;
+SELECT * FROM Products;
+SELECT * FROM ProductImages;
+SELECT * FROM CartItems;
+SELECT * FROM Orders;
+SELECT * FROM OrderItems;
+SELECT * FROM Receipts;
+SELECT * FROM TelegramLinks;
+GO
