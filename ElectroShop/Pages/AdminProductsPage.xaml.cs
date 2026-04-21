@@ -75,7 +75,10 @@ namespace ElectroShop.Pages
                 LoadProducts();
             }
         }
-
+        private void btnOrders_Click(object sender, RoutedEventArgs e)
+        {
+            AppFrame.frmMain.Navigate(new AdminOrdersPage());
+        }
         private void btnUsers_Click(object sender, RoutedEventArgs e)
         {
             AppFrame.frmMain.Navigate(new AdminUsersPage());

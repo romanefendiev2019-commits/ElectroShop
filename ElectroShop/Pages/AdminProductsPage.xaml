@@ -43,6 +43,11 @@
                         Style="{StaticResource GhostButtonStyle}"
                         Margin="0,10,0,0"
                         Click="btnUsers_Click"/>
+                <Button x:Name="btnOrders"
+        Content="Заказы"
+        Style="{StaticResource GhostButtonStyle}"
+        Margin="0,10,0,0"
+        Click="btnOrders_Click"/>
 
                 <Button x:Name="btnBack"
                         Content="Назад"

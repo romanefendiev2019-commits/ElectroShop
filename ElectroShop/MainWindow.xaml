@@ -4,7 +4,12 @@
         Title="ElectroShop"
         Height="720"
         Width="1200"
-        WindowStartupLocation="CenterScreen">
+        MinHeight="720"
+        MinWidth="1200"
+        
+        
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource AppBackgroundBrush}">
     <Grid>
         <Frame x:Name="frmMain"
                NavigationUIVisibility="Hidden"/>

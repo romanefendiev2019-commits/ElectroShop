@@ -112,10 +112,12 @@ namespace ElectroShop.Pages
                 Model = x.Model,
                 Price = x.Price,
                 WarrantyMonths = x.WarrantyMonths,
-                ShortSpecifications = x.Specifications != null && x.Specifications.Length > 80
-                    ? x.Specifications.Substring(0, 80) + "..."
-                    : x.Specifications,
-                ImagePath = GetImagePath(x.MainImage)
+                ShortSpecifications = x.Specifications != null && x.Specifications.Length > 70
+        ? x.Specifications.Substring(0, 70) + "..."
+        : x.Specifications,
+                ImagePath = GetImagePath(x.MainImage),
+                StatusName = x.ProductStatuses != null ? x.ProductStatuses.StatusName : "",
+                PortableText = x.IsPortable == true ? "Портативный" : "Стационарный"
             }).ToList();
 
             lvProducts.ItemsSource = displayItems;
@@ -239,5 +241,7 @@ namespace ElectroShop.Pages
         public int? WarrantyMonths { get; set; }
         public string ShortSpecifications { get; set; }
         public string ImagePath { get; set; }
+        public string StatusName { get; set; }
+        public string PortableText { get; set; }
     }
 }
