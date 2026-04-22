@@ -9,7 +9,7 @@
         
         
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource AppBackgroundBrush}">
+        Background="{StaticResource AppBackgroundBrush}" Icon="/free-icon-circuit-board-4350670.png">
     <Grid>
         <Frame x:Name="frmMain"
                NavigationUIVisibility="Hidden"/>

@@ -113,8 +113,8 @@ namespace ElectroShop.Pages
                 Price = x.Price,
                 WarrantyMonths = x.WarrantyMonths,
                 ShortSpecifications = x.Specifications != null && x.Specifications.Length > 70
-        ? x.Specifications.Substring(0, 70) + "..."
-        : x.Specifications,
+         ? x.Specifications.Substring(0, 70) + "..."
+         : x.Specifications,
                 ImagePath = GetImagePath(x.MainImage),
                 StatusName = x.ProductStatuses != null ? x.ProductStatuses.StatusName : "",
                 PortableText = x.IsPortable == true ? "Портативный" : "Стационарный"
