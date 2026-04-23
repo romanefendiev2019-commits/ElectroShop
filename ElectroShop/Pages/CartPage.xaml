@@ -7,7 +7,9 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="14*"/>
+            <RowDefinition Height="131*"/>
+            <RowDefinition Height="145*"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
@@ -30,7 +32,7 @@
                     Click="btnBack_Click"/>
         </Grid>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Grid.RowSpan="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="320"/>
@@ -92,23 +94,36 @@
                                     <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center">
                                         <Button Content="-"
-                                                Width="32"
-                                                Tag="{Binding}"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Click="btnMinus_Click"/>
+        Width="32"
+        Height="32"
+        Tag="{Binding}"
+        Click="btnMinus_Click"
+        Background="White"
+        Foreground="Black"
+        BorderBrush="#CFCFEA"
+        BorderThickness="1"
+        FontSize="18"
+        FontWeight="Bold"/>
 
                                         <TextBlock Text="{Binding Quantity}"
-                                                   Width="36"
-                                                   TextAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{StaticResource TextMainBrush}"
-                                                   FontWeight="Bold"/>
+           Width="36"
+           TextAlignment="Center"
+           VerticalAlignment="Center"
+           Foreground="{StaticResource TextMainBrush}"
+           FontWeight="Bold"
+           FontSize="15"/>
 
                                         <Button Content="+"
-                                                Width="32"
-                                                Tag="{Binding}"
-                                                Style="{StaticResource GhostButtonStyle}"
-                                                Click="btnPlus_Click"/>
+        Width="32"
+        Height="32"
+        Tag="{Binding}"
+        Click="btnPlus_Click"
+        Background="White"
+        Foreground="Black"
+        BorderBrush="#CFCFEA"
+        BorderThickness="1"
+        FontSize="18"
+        FontWeight="Bold"/>
                                     </StackPanel>
                                 </StackPanel>
 
